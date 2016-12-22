@@ -16,7 +16,10 @@ namespace ORM.DBUtility
     {
         private SqlConnection SQLConn = null;
         private bool IsReadOnly = false;
-        private string _ConnectionMark = "CNMSGS";
+        private string _ConnectionMark = "SQLDBS";
+
+        private DateTime begintime = new DateTime();
+        private DateTime endtime = new DateTime();
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -36,7 +39,7 @@ namespace ORM.DBUtility
             get
             {
                 string ConfigStr = string.Empty;
-                if (IsReadOnly)
+                if (!IsReadOnly)
                 {
                     ConfigStr = ConfigurationManager.ConnectionStrings[_ConnectionMark + "_WRITE"].ConnectionString;
                 }
@@ -61,17 +64,20 @@ namespace ORM.DBUtility
         /// <returns></returns>
         public int ExecNonquery(string cmdText, params SqlParameter[] commandParameters)
         {
+            SqlCommand cmd = new SqlCommand();
             try
             {
-                SqlCommand cmd = new SqlCommand();
                 CommonPreCmd(cmdText, cmd, null, CommandType.Text, commandParameters);
+                begintime = DateTime.Now;
                 int val = cmd.ExecuteNonQuery();
+                endtime = DateTime.Now;
                 cmd.Parameters.Clear();
                 this.Close();
                 return val;
             }
-            catch
+            catch (Exception e)
             {
+                log.Save(e, cmd);
                 this.Close();
                 return -1;
             }
@@ -95,17 +101,20 @@ namespace ORM.DBUtility
         /// <returns></returns>
         public object ExecScalar(string cmdText, params SqlParameter[] commandParameters)
         {
+            SqlCommand cmd = new SqlCommand();
             try
             {
-                SqlCommand cmd = new SqlCommand();
                 CommonPreCmd(cmdText, cmd, null, CommandType.Text, commandParameters);
+                begintime = DateTime.Now;
                 object val = cmd.ExecuteScalar();
+                endtime = DateTime.Now;
                 cmd.Parameters.Clear();
                 this.Close();
                 return val;
             }
-            catch
+            catch (Exception e)
             {
+                log.Save(e, cmd);
                 this.Close();
                 return -1;
             }
@@ -129,17 +138,20 @@ namespace ORM.DBUtility
         /// <returns></returns>
         public SqlDataReader ExecReader(string cmdText, params SqlParameter[] commandParameters)
         {
+            SqlCommand cmd = new SqlCommand();
             try
             {
-                SqlCommand cmd = new SqlCommand();
                 CommonPreCmd(cmdText, cmd, null, CommandType.Text, commandParameters);
+                begintime = DateTime.Now;
                 SqlDataReader rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+                endtime = DateTime.Now;
 
                 cmd.Parameters.Clear();
                 return rdr;
             }
-            catch
+            catch (Exception e)
             {
+                log.Save(e, cmd);
                 this.Close();
                 return null;
             }
@@ -163,19 +175,21 @@ namespace ORM.DBUtility
         /// <returns></returns>
         public DataSet ExecDataSet(string cmdText, params SqlParameter[] commandParameters)
         {
+            SqlCommand cmd = new SqlCommand();
             try
             {
-                SqlCommand cmd = new SqlCommand();
                 CommonPreCmd(cmdText, cmd, null, CommandType.Text, commandParameters);
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
                 DataSet ds = new DataSet();
+                begintime = DateTime.Now;
                 da.Fill(ds);
                 cmd.Parameters.Clear();
                 this.Close();
                 return ds;
             }
-            catch
+            catch (Exception e)
             {
+                log.Save(e, cmd);
                 this.Close();
                 return null;
             }
@@ -199,19 +213,21 @@ namespace ORM.DBUtility
         /// <returns></returns>
         public DataTable ExecDataTable(string cmdText, params SqlParameter[] commandParameters)
         {
+            SqlCommand cmd = new SqlCommand();
             try
             {
-                SqlCommand cmd = new SqlCommand();
                 CommonPreCmd(cmdText, cmd, null, CommandType.Text, commandParameters);
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
                 DataTable dt = new DataTable();
+                begintime = DateTime.Now;
                 da.Fill(dt);
                 cmd.Parameters.Clear();
                 this.Close();
                 return dt;
             }
-            catch
+            catch (Exception e)
             {
+                log.Save(e, cmd);
                 this.Close();
                 return null;
             }
@@ -235,18 +251,23 @@ namespace ORM.DBUtility
         /// <returns></returns>
         public XmlReader ExecXmlReader(string cmdText, params SqlParameter[] commandParameters)
         {
+            SqlCommand cmd = new SqlCommand();
             try
             {
-                SqlCommand cmd = new SqlCommand();
                 CommonPreCmd(cmdText, cmd, null, CommandType.Text, commandParameters);
+
+                begintime = DateTime.Now;
+
                 XmlReader xr = cmd.ExecuteXmlReader();
+
                 xr.MoveToElement();
                 xr.Close();
 
                 return xr;
             }
-            catch
+            catch (Exception e)
             {
+                log.Save(e, cmd);
                 this.Close();
                 return null;
             }
@@ -272,17 +293,22 @@ namespace ORM.DBUtility
         /// <returns></returns>
         public int ExecNonquery_Proc(string cmdText, params SqlParameter[] commandParameters)
         {
+            SqlCommand cmd = new SqlCommand();
             try
             {
-                SqlCommand cmd = new SqlCommand();
                 CommonPreCmd(cmdText, cmd, null, CommandType.StoredProcedure, commandParameters);
+
+                begintime = DateTime.Now;
+
                 int val = cmd.ExecuteNonQuery();
+
                 cmd.Parameters.Clear();
                 this.Close();
                 return val;
             }
-            catch
+            catch (Exception e)
             {
+                log.Save(e, cmd);
                 this.Close();
                 return -1;
             }
@@ -306,17 +332,22 @@ namespace ORM.DBUtility
         /// <returns></returns>
         public object ExecScalar_Proc(string cmdText, params SqlParameter[] commandParameters)
         {
+            SqlCommand cmd = new SqlCommand();
             try
             {
-                SqlCommand cmd = new SqlCommand();
                 CommonPreCmd(cmdText, cmd, null, CommandType.StoredProcedure, commandParameters);
+
+                begintime = DateTime.Now;
+
                 object val = cmd.ExecuteScalar();
+
                 cmd.Parameters.Clear();
                 this.Close();
                 return val;
             }
-            catch
+            catch (Exception e)
             {
+                log.Save(e, cmd);
                 this.Close();
                 return -1;
             }
@@ -340,17 +371,21 @@ namespace ORM.DBUtility
         /// <returns></returns>
         public SqlDataReader ExecReader_Proc(string cmdText, params SqlParameter[] commandParameters)
         {
+            SqlCommand cmd = new SqlCommand();
             try
             {
-                SqlCommand cmd = new SqlCommand();
                 CommonPreCmd(cmdText, cmd, null, CommandType.StoredProcedure, commandParameters);
+
+                begintime = DateTime.Now;
+
                 SqlDataReader rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
 
                 cmd.Parameters.Clear();
                 return rdr;
             }
-            catch
+            catch (Exception e)
             {
+                log.Save(e, cmd);
                 this.Close();
                 return null;
             }
@@ -374,19 +409,24 @@ namespace ORM.DBUtility
         /// <returns></returns>
         public DataSet ExecDataSet_Proc(string cmdText, params SqlParameter[] commandParameters)
         {
+            SqlCommand cmd = new SqlCommand();
             try
             {
-                SqlCommand cmd = new SqlCommand();
                 CommonPreCmd(cmdText, cmd, null, CommandType.StoredProcedure, commandParameters);
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
                 DataSet ds = new DataSet();
+
+                begintime = DateTime.Now;
+
                 da.Fill(ds);
+
                 cmd.Parameters.Clear();
                 this.Close();
                 return ds;
             }
-            catch
+            catch (Exception e)
             {
+                log.Save(e, cmd);
                 this.Close();
                 return null;
             }
@@ -410,19 +450,24 @@ namespace ORM.DBUtility
         /// <returns></returns>
         public DataTable ExecDataTable_Proc(string cmdText, params SqlParameter[] commandParameters)
         {
+            SqlCommand cmd = new SqlCommand();
             try
             {
-                SqlCommand cmd = new SqlCommand();
                 CommonPreCmd(cmdText, cmd, null, CommandType.StoredProcedure, commandParameters);
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
                 DataTable dt = new DataTable();
+
+                begintime = DateTime.Now;
+
                 da.Fill(dt);
+
                 cmd.Parameters.Clear();
                 this.Close();
                 return dt;
             }
-            catch
+            catch (Exception e)
             {
+                log.Save(e, cmd);
                 this.Close();
                 return null;
             }
@@ -446,18 +491,23 @@ namespace ORM.DBUtility
         /// <returns></returns>
         public XmlReader ExecXmlReader_Proc(string cmdText, params SqlParameter[] commandParameters)
         {
+            SqlCommand cmd = new SqlCommand();
             try
             {
-                SqlCommand cmd = new SqlCommand();
                 CommonPreCmd(cmdText, cmd, null, CommandType.StoredProcedure, commandParameters);
+
+                begintime = DateTime.Now;
+
                 XmlReader xr = cmd.ExecuteXmlReader();
+
                 xr.MoveToElement();
                 xr.Close();
 
                 return xr;
             }
-            catch
+            catch (Exception e)
             {
+                log.Save(e, cmd);
                 this.Close();
                 return null;
             }
@@ -481,13 +531,18 @@ namespace ORM.DBUtility
             {
                 cmd.Connection = this.SQLConn;
                 this.Open();
+
+                begintime = DateTime.Now;
+
                 int val = cmd.ExecuteNonQuery();
+
                 cmd.Parameters.Clear();
                 this.Close();
                 return val;
             }
-            catch
+            catch (Exception e)
             {
+                log.Save(e, cmd);
                 this.Close();
                 return -1;
             }
@@ -498,12 +553,17 @@ namespace ORM.DBUtility
             {
                 cmd.Connection = this.SQLConn;
                 this.Open();
+
+                begintime = DateTime.Now;
+
                 object obj = cmd.ExecuteScalar();
+
                 this.Close();
                 return obj;
             }
-            catch
+            catch (Exception e)
             {
+                log.Save(e, cmd);
                 this.Close();
                 return null;
             }
@@ -516,12 +576,18 @@ namespace ORM.DBUtility
                 this.Open();
                 SqlDataAdapter adp = new SqlDataAdapter(cmd);
                 DataTable dt = new DataTable();
+
+                begintime = DateTime.Now;
+
                 adp.Fill(dt);
+
                 this.Close();
                 return dt;
             }
-            catch
+            catch (Exception e)
             {
+                this.Close();
+                log.Save(e, cmd);
                 return null;
             }
         }
@@ -533,12 +599,18 @@ namespace ORM.DBUtility
                 this.Open();
                 SqlDataAdapter adp = new SqlDataAdapter(cmd);
                 DataSet ds = new DataSet();
+
+                begintime = DateTime.Now;
+
                 adp.Fill(ds);
+
                 this.Close();
                 return ds;
             }
-            catch
+            catch (Exception e)
             {
+                this.Close();
+                log.Save(e, cmd);
                 return null;
             }
         }
@@ -700,8 +772,9 @@ namespace ORM.DBUtility
                 }
                 trans.Commit();
             }
-            catch
+            catch (Exception e)
             {
+                log.Save(e, cmd);
                 trans.Rollback(transName);
             }
             this.Close();
@@ -743,11 +816,14 @@ namespace ORM.DBUtility
             }
             catch (Exception e)
             {
+                log.Save(e, cmd);
                 trans.Rollback(transName);
             }
             this.Close();
             return ExecQueryList;
         }
         #endregion
+
+        private static Loger log = new Loger();
     }
 }
